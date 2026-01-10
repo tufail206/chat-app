@@ -12,7 +12,7 @@ const sendMessage=async(req,res,next)=>{
       let gotConversation = await Conversation.findOne({
         participants: { $all: [ senderId, receiverId] } ,
       });
-console.log("gotConversation", gotConversation);
+
       if (!gotConversation){
         gotConversation = await Conversation.create({
           participants: [senderId, receiverId],
@@ -26,7 +26,7 @@ console.log("gotConversation", gotConversation);
         receiverId,
         message,
       });
-console.log("newMessage", newMessage);
+
       if (newMessage){
         gotConversation.messages.push(newMessage._id)
       }
@@ -41,11 +41,17 @@ console.log("newMessage", newMessage);
     }
 }
 
-const getMessage=async(req,res)=>{
+const getMessage=async(req,res,next)=>{
     try {
-        
+        const receiverID=req.params.id
+         const sendId=req.user.id
+         console.log(sendId,receiverID);
+        const conversation = await Conversation.findOne({
+          participants: { $all: [sendId,receiverID] },
+        }).populate("messages");
+        return res.status(201).json({message:conversation})
     } catch (error) {
-        
+        next(error)
     }
 }
-export { sendMessage };
+export { sendMessage, getMessage };
