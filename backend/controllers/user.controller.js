@@ -92,7 +92,7 @@ const login = async (req, res, next) => {
   }
 };
 
-const userProfile=async(req,res)=>{
+const userProfile=async(req,res,next)=>{
   try {
     
     const user=req.user
@@ -107,4 +107,29 @@ const userProfile=async(req,res)=>{
   }
 }
 
-export { register, login, userProfile };
+const getAllUsers=async(req,res,next)=>{
+  try {
+    
+    const users=await User.find()
+    
+    if(users.length<=0){
+    return res.status(404).json({
+      message:"no user found",
+      error:true,
+      success:false
+    })
+    }
+
+   return res.status(200).json({
+     message: "all users data",
+     error: false,
+     success: true,
+     users
+   });
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+export { register, login, userProfile, getAllUsers };

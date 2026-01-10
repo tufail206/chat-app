@@ -17,22 +17,12 @@ const userSchema = new Schema(
 
 
 
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
-userSchema.pre("save", async function (next) {
-  // only hash if password is modified
-  if (!this.isModified("password")) {
-    return next();
-  }
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-  next(error)
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
-
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
@@ -54,7 +44,7 @@ userSchema.methods.generateToken=async function(){
       }
     )
   } catch (error) {
-    next(error)
+    throw new Error("Token generation failed");
   }
 
 }
