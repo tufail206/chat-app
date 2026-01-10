@@ -1,10 +1,10 @@
 import User from "../models/user.model.js";
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
-    const { username, fullName, password, conform_password,gender } = req.body;
+    const { username, fullName, password, conform_password, gender } = req.body;
 
-    if ((!username, !fullName, !password, !conform_password, !gender)) {
+    if (!username || !fullName || !password || !conform_password || !gender) {
       return res.status(400).json({
         message: "All fields are required",
         error: true,
@@ -29,17 +29,21 @@ const register = async (req, res) => {
       });
     }
 
-    const createUser = await User.create({ username, fullName, password ,profile_photo,gender,gender});
+    const createUser = await User.create({
+      username,
+      fullName,
+      password,
+      gender,
+    });
 
-
-
-   return res.status(500).json({
-     message: "registration successfully",
-     error: false,
-     success: true,
-     user:createUser
-   });
+    return res.status(500).json({
+      message: "registration successfully",
+      error: false,
+      success: true,
+      user: createUser,
+    });
   } catch (error) {
+    console.log("e--", error);
     return res.status(500).json({
       message: "registration failed",
       error: true,
@@ -48,12 +52,59 @@ const register = async (req, res) => {
   }
 };
 
-const login=async(req,res)=>{
+const login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(409).json({
+        message: "all field is required",
+        success: false,
+        error: true,
+      });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({
+        message: "invalid username or email",
+        success: false,
+        error: true,
+      });
+    }
+
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({
+        message: "incorrect email or password",
+        success: false,
+        error: true,
+      });
+    }
+
+    return res.status(200).json({
+      message: "login successfully",
+      error: false,
+      success: true,
+      token: await user.generateToken(),
+    });
+  } catch (error) {
+    next(error)
+  }
+};
+
+const userProfile=async(req,res)=>{
   try {
     
+    const user=req.user
+
+    res.status(200).json({
+      message: "user data fetch successfully",
+      user,
+    });
+
   } catch (error) {
-    
+    next(error)
   }
 }
 
-export {register,login}
+export { register, login, userProfile };
