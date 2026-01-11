@@ -10,7 +10,15 @@ import errorMiddleware from "./middlewares/error.middleware.js"
 const app=express()
 const server=createServer()
 const PORT = process.env.PORT;
-app.use(express.json())
+app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "PUT", "PATCH", "DELETE", "UPDATE", "HEAD"],
+    credentials: true
+  })
+);
+
 
 app.use("/api/v1/",user_route)
 app.use("/api/v1/", message_route);

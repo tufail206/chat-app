@@ -1,6 +1,11 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useRegisterMutation } from "../../../api/auth-api";
+import toast from "react-hot-toast";
 
 const Signup = () => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState({
     username: "",
     fullName: "",
@@ -9,32 +14,44 @@ const Signup = () => {
     gender: "",
   });
 
+  const [register, { isLoading, isError, error }] =
+    useRegisterMutation();
+
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (user.password !== user.confirm_password) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
-    console.log(user); // send to API later
+    try {
+      const res = await register(user).unwrap();
+
+      toast.success(res?.message || "Account created successfully",{duration:2000});
+      navigate("/login");
+    } catch (err) {
+      // ❌ ERROR (from backend)
+      toast.error(
+        err?.data?.message || "Something went wrong, please try again"
+      ,{duration:2000});
+    }
   };
 
   return (
-    <div className=" flex items-center justify-center bg-base-200">
-      <div className="w-full max-w-md bg-base-100 shadow-xl rounded-xl p-8">
-        <h3 className="text-3xl font-bold text-center mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
+      <div className="w-full sm:max-w-md bg-base-100 shadow-2xl rounded-2xl p-6 sm:p-8">
+        <h3 className="text-2xl sm:text-3xl font-bold text-center mb-6">
           Register in Socket
           <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-bounce ml-1"></span>
           io
         </h3>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Username */}
           <input
             type="text"
             name="username"
@@ -45,7 +62,6 @@ const Signup = () => {
             required
           />
 
-          {/* Full Name */}
           <input
             type="text"
             name="fullName"
@@ -56,7 +72,6 @@ const Signup = () => {
             required
           />
 
-          {/* Gender */}
           <input
             type="text"
             name="gender"
@@ -72,7 +87,6 @@ const Signup = () => {
             <option value="female" />
           </datalist>
 
-          {/* Password */}
           <input
             type="password"
             name="password"
@@ -83,7 +97,6 @@ const Signup = () => {
             required
           />
 
-          {/* Confirm Password */}
           <input
             type="password"
             name="confirm_password"
@@ -93,10 +106,32 @@ const Signup = () => {
             onChange={handleChange}
             required
           />
+          {/* LINKS */}
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm">
+            <Link
+              to="/forgot-password"
+              className="text-blue-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
 
-          {/* Submit */}
-          <button type="submit" className="btn btn-success mt-4 text-black">
-            Create Account
+            <p className="text-center sm:text-right">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-blue-600 font-medium hover:underline"
+              >
+                Login
+              </Link>
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn btn-success mt-4 text-black disabled:opacity-60"
+          >
+            {isLoading ? "Creating..." : "Create Account"}
           </button>
         </form>
       </div>

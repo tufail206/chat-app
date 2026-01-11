@@ -2,9 +2,10 @@ import User from "../models/user.model.js";
 
 const register = async (req, res, next) => {
   try {
-    const { username, fullName, password, conform_password, gender } = req.body;
-
-    if (!username || !fullName || !password || !conform_password || !gender) {
+    const { username, fullName, password, confirm_password, gender } = req.body;
+console.log("username, fullName, password, confirm_password, gender");
+console.log(username, fullName, password, confirm_password, gender);
+    if (!username || !fullName || !password || !confirm_password || !gender) {
       return res.status(400).json({
         message: "All fields are required",
         error: true,
@@ -12,7 +13,7 @@ const register = async (req, res, next) => {
       });
     }
 
-    if (password != conform_password) {
+    if (password != confirm_password) {
       return res.status(400).json({
         message: "password and confirmed password must be same",
         error: true,
@@ -36,7 +37,7 @@ const register = async (req, res, next) => {
       gender,
     });
 
-    return res.status(500).json({
+    return res.status(201).json({
       message: "registration successfully",
       error: false,
       success: true,
