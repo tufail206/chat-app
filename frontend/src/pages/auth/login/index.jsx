@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../../api/auth-api";
 import toast from "react-hot-toast";
-
+import { useDispatch } from "react-redux";
+import {setCredentials} from "../../../store/slices/auth"
 const Login = () => {
   const navigate = useNavigate();
-
+ const dispatch=useDispatch()
   const [user, setUser] = useState({
     username: "",
     password: "",
@@ -22,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login(user).unwrap();
-
+        dispatch(setCredentials(res));
       toast.success(res?.message || "login successfully", {
         duration: 2000,
       });

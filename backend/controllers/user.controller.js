@@ -87,6 +87,7 @@ const login = async (req, res, next) => {
       error: false,
       success: true,
       token: await user.generateToken(),
+      user,
     });
   } catch (error) {
     next(error)
@@ -110,8 +111,8 @@ const userProfile=async(req,res,next)=>{
 
 const getAllUsers=async(req,res,next)=>{
   try {
-    
-    const users=await User.find()
+     const loggedInUser=req.user.id
+    const users=await User.find({_id:{$ne:loggedInUser}})
     
     if(users.length<=0){
     return res.status(404).json({
