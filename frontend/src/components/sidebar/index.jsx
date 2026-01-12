@@ -1,6 +1,11 @@
 import React from "react";
-
+import { setSelectedUser } from "../../store/slices/auth";
+import { useDispatch } from "react-redux";
 const Sidebar = ({ fullName, _id, profile_photo }) => {
+  const dispatch=useDispatch()
+    const handleSetConverSation=(id)=>{
+      dispatch(setSelectedUser(id));
+    }
   return (
     <div className="px-2">
       <div
@@ -36,6 +41,7 @@ const Sidebar = ({ fullName, _id, profile_photo }) => {
           <p
             className="text-sm font-medium text-gray-800 truncate"
             title={fullName}
+            onClick={()=>handleSetConverSation(_id)}
           >
             {fullName}
           </p>
