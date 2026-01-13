@@ -45,11 +45,13 @@ const getMessage=async(req,res,next)=>{
     try {
         const receiverID=req.params.id
          const sendId=req.user.id
-         console.log("sender",sendId);
-         console.log("receiverID", receiverID);
         const conversation = await Conversation.findOne({
           participants: { $all: [sendId,receiverID] },
         }).populate("messages");
+        if (!conversation){
+          return   res.status(404).json({message:"no conversation found",error:true})
+        } 
+      
         return res.status(201).json({message:conversation})
     } catch (error) {
         next(error)

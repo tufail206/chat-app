@@ -26,16 +26,15 @@ export const messageApi = createApi({
         method: "POST",
         body: message,
       }),
-      invalidatesTags: ["message-tag"],
+      invalidatesTags: (result, error, { id }) => [{ type: "message-tag", id }],
     }),
 
     getMessages: builder.query({
-      query: ({id}) => ({
+      query: (id) => ({
         url: `/get_message/${id}`,
       }),
-      invalidatesTags: ["message-tag"],
+      providesTags: (result, error, id) => [{ type: "message-tag", id }],
     }),
-
   }),
 });
 

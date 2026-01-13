@@ -1,10 +1,10 @@
 import React from "react";
 import { setSelectedUser } from "../../store/slices/auth";
 import { useDispatch } from "react-redux";
-const Sidebar = ({ fullName, _id, profile_photo }) => {
+const Sidebar = ({user}) => {
   const dispatch=useDispatch()
-    const handleSetConverSation=(id)=>{
-      dispatch(setSelectedUser(id));
+    const handleSetConverSation=(u)=>{
+      dispatch(setSelectedUser(u));
     }
   return (
     <div className="px-2">
@@ -17,15 +17,15 @@ const Sidebar = ({ fullName, _id, profile_photo }) => {
           className="relative w-10 h-10 rounded-full bg-gray-300 
                         flex items-center justify-center shrink-0"
         >
-          {profile_photo ? (
+          {user?.profile_photo ? (
             <img
-              src={profile_photo}
-              alt={fullName?.[0]}
+              src={user?.profile_photo}
+              alt={user?.fullName?.[0]}
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
             <span className="font-semibold text-gray-700">
-              {fullName?.[0]?.toUpperCase()}
+              {user?.fullName?.[0]?.toUpperCase()}
             </span>
           )}
 
@@ -40,10 +40,10 @@ const Sidebar = ({ fullName, _id, profile_photo }) => {
         <div className="flex-1 min-w-0">
           <p
             className="text-sm font-medium text-gray-800 truncate"
-            title={fullName}
-            onClick={()=>handleSetConverSation(_id)}
+            title={user?.fullName}
+            onClick={()=>handleSetConverSation(user)}
           >
-            {fullName}
+            {user?.fullName}
           </p>
         </div>
       </div>

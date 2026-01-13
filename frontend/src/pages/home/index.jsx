@@ -3,7 +3,7 @@ import { useGetUsersQuery } from "../../api/auth-api";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar";
 import { FaSignOutAlt } from "react-icons/fa";
-import { logout ,setSelectedUser} from "../../store/slices/auth";
+import { logout } from "../../store/slices/auth";
 import { useDispatch ,useSelector } from "react-redux";
 import Messages from "../../components/messages";
 import { useGetMessagesQuery } from "../../api/message-api";
@@ -11,9 +11,10 @@ import { useGetMessagesQuery } from "../../api/message-api";
 const Home = () => {
   const { currentData } = useGetUsersQuery();
   const { selectedUser } = useSelector((s) => s.auth);
-  const { messages, isLoading } = useGetMessagesQuery({},
-    { skip: !selectedUser }
-  );
+  const { isLoading,currentData:messages } = useGetMessagesQuery(selectedUser?._id, {
+    skip: !selectedUser?._id,
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -21,9 +22,11 @@ const Home = () => {
     dispatch(logout());
     navigate("/login");
   };
+ if(isLoading){
+  return;
+ }
 
-  const activeUser = currentData?.users?.[0];
-console.log("me--",)
+ const activeUser = currentData?.users?.find((u) => u._id === selectedUser?._id);
   return (
     <div className=" flex bg-gray-100">
       {/* SIDEBAR */}
@@ -39,13 +42,9 @@ console.log("me--",)
 
         {/* User List */}
         <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
-            <p className="p-4 text-center text-gray-500">Loading...</p>
-          ) : (
-            currentData?.users?.map((user) => (
-              <Sidebar key={user._id} {...user} />
-            ))
-          )}
+         { currentData?.users?.map((user) => (
+          <Sidebar key={user._id} user={user} />
+          ))}
         </div>
 
         {/* Logout */}
@@ -74,7 +73,6 @@ console.log("me--",)
             </div>
           </div>
         </header>
-        {console.log("messages",messages)}
         <Messages messages={messages} users={currentData} />
         {/* Message Input */}
         <div className="p-3 bg-white border-t flex gap-2 shrink-0">

@@ -2,13 +2,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  tagTypes: ["auth-tag"],
+  tagTypes: ["Profile", "Users"],
+
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:5000/api/v1", // change if needed
 
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth?.token;
-      console.log("getState", getState());
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
@@ -24,7 +24,6 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["auth-tag"],
     }),
 
     login: builder.mutation({
@@ -33,19 +32,17 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["auth-tag"],
     }),
 
     getProfile: builder.query({
       query: () => "/profile",
-      providesTags: ["auth-tag"],
+      providesTags: ["Profile"],
     }),
 
     getUsers: builder.query({
       query: () => "/users",
-      providesTags: ["auth-tag"],
+      providesTags: ["Users"],
     }),
-
   }),
 });
 
