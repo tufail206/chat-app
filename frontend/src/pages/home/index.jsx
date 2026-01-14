@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { useGetUsersQuery } from "../../api/auth-api";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar";
@@ -8,11 +8,11 @@ import { useDispatch ,useSelector } from "react-redux";
 import Messages from "../../components/messages";
 import { useGetMessagesQuery } from "../../api/message-api";
 
-const Home = () => {
+const Home =memo( () => {
   const { currentData } = useGetUsersQuery();
   const { selectedUser } = useSelector((s) => s.auth);
   const  users = useSelector((s) => s.auth);
-  console.log("users--", users);
+
   const { isLoading,currentData:messages } = useGetMessagesQuery(selectedUser?._id, {
     skip: !selectedUser?._id,
   });
@@ -24,13 +24,11 @@ const Home = () => {
     dispatch(logout());
     navigate("/login");
   };
- if(isLoading){
-  return;
- }
-
- const activeUser = currentData?.users?.find((u) => u._id === selectedUser?._id);
+const activeUser = useMemo(() => {
+  return currentData?.users?.find((u) => u._id === selectedUser?._id);
+}, [currentData?.users, selectedUser?._id]);
   return (
-    <div className=" flex bg-gray-100">
+    <div className=" flex bg-gray-100 ">
       {/* SIDEBAR */}
       <aside className="hidden md:flex gap-3 flex-col w-72 bg-white border-r">
         {/* Search */}
@@ -43,7 +41,7 @@ const Home = () => {
         </div>
 
         {/* User List */}
-        <div className="flex-1 space-y-2 h-full overflow-y-auto">
+        <div className="h-[78dvh] overflow-y-auto space-y-2 ">
           {currentData?.users?.map((user) => (
             <Sidebar key={user._id} user={user} />
           ))}
@@ -60,8 +58,8 @@ const Home = () => {
       </aside>
 
       {/* CHAT AREA */}
-      {selectedUser ? (
-        <main className="flex-1 flex flex-col h-screen">
+      {selectedUser && selectedUser ? (
+        <main className="flex-1 flex flex-col">
           {/* Chat Header */}
           <header className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0">
             <div className="flex items-center gap-3">
@@ -97,6 +95,6 @@ const Home = () => {
       )}
     </div>
   );
-};
+});
 
 export { Home as Component };

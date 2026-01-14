@@ -1,29 +1,35 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { setSelectedUser } from "../../store/slices/auth";
-import { useDispatch, useSelector } from "react-redux";
+
 const Sidebar = ({ user }) => {
   const dispatch = useDispatch();
-  const { selectedUser } = useSelector((s) => s.auth);
-  const handleSetConverSation = (u) => {
-    dispatch(setSelectedUser(u));
-  };
+  const selectedUser = useSelector((s) => s.auth.selectedUser, shallowEqual);
+
+  // Memoize callback so it doesn't recreate on each render
+  const handleSetConversation = useCallback(() => {
+    dispatch(setSelectedUser(user));
+  }, [dispatch, user]);
+
+  // Memoize whether this user is active
+  const isActive = useMemo(
+    () => selectedUser?._id === user._id,
+    [selectedUser?._id, user._id]
+  );
 
   return (
-    <div className="px-2 space-y-2 ">
+    <div className="px-2 space-y-2">
       <div
-        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
-          selectedUser?._id == user._id ? "bg-gray-500 text-white" : null
-        }
-                   transition`}
+        onClick={handleSetConversation}
+        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition ${
+          isActive ? "bg-gray-500 text-white" : ""
+        }`}
       >
         {/* Avatar */}
-        <div
-          className="relative w-10 h-10 rounded-full bg-gray-300 
-                        flex items-center justify-center shrink-0"
-        >
+        <div className="relative w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center shrink-0">
           {user?.profile_photo ? (
             <img
-              src={user?.profile_photo}
+              src={user.profile_photo}
               alt={user?.fullName?.[0]}
               className="w-full h-full rounded-full object-cover"
             />
@@ -32,21 +38,13 @@ const Sidebar = ({ user }) => {
               {user?.fullName?.[0]?.toUpperCase()}
             </span>
           )}
-
-          {/* Online Indicator */}
-          <span
-            className="absolute bottom-0 right-0 w-2.5 h-2.5 
-                           bg-green-500 border-2 border-white rounded-full"
-          />
+          {/* Online indicator */}
+          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
         </div>
-        {console.log("selectedUser", selectedUser)}
+
         {/* Name */}
         <div className="flex-1 min-w-0">
-          <p
-            className="text-sm font-medium truncate"
-            title={user?.fullName}
-            onClick={() => handleSetConverSation(user)}
-          >
+          <p className="text-sm font-medium truncate" title={user?.fullName}>
             {user?.fullName}
           </p>
         </div>
@@ -55,4 +53,5 @@ const Sidebar = ({ user }) => {
   );
 };
 
-export default Sidebar;
+// Memoize Sidebar so it only re-renders if `user` or `selectedUser` changes
+export default memo(Sidebar);
