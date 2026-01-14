@@ -1,16 +1,20 @@
 import React from "react";
 import { setSelectedUser } from "../../store/slices/auth";
-import { useDispatch } from "react-redux";
-const Sidebar = ({user}) => {
-  const dispatch=useDispatch()
-    const handleSetConverSation=(u)=>{
-      dispatch(setSelectedUser(u));
-    }
+import { useDispatch, useSelector } from "react-redux";
+const Sidebar = ({ user }) => {
+  const dispatch = useDispatch();
+  const { selectedUser } = useSelector((s) => s.auth);
+  const handleSetConverSation = (u) => {
+    dispatch(setSelectedUser(u));
+  };
+
   return (
-    <div className="px-2">
+    <div className="px-2 space-y-2 ">
       <div
-        className="flex items-center gap-3 p-2 rounded-lg cursor-pointer 
-                   hover:bg-gray-200 transition"
+        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+          selectedUser?._id == user._id ? "bg-gray-500 text-white" : null
+        }
+                   transition`}
       >
         {/* Avatar */}
         <div
@@ -35,13 +39,13 @@ const Sidebar = ({user}) => {
                            bg-green-500 border-2 border-white rounded-full"
           />
         </div>
-
+        {console.log("selectedUser", selectedUser)}
         {/* Name */}
         <div className="flex-1 min-w-0">
           <p
-            className="text-sm font-medium text-gray-800 truncate"
+            className="text-sm font-medium truncate"
             title={user?.fullName}
-            onClick={()=>handleSetConverSation(user)}
+            onClick={() => handleSetConverSation(user)}
           >
             {user?.fullName}
           </p>

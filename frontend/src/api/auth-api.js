@@ -32,6 +32,7 @@ export const authApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Profile", "Users"],
     }),
 
     getProfile: builder.query({

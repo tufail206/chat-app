@@ -11,6 +11,8 @@ import { useGetMessagesQuery } from "../../api/message-api";
 const Home = () => {
   const { currentData } = useGetUsersQuery();
   const { selectedUser } = useSelector((s) => s.auth);
+  const  users = useSelector((s) => s.auth);
+  console.log("users--", users);
   const { isLoading,currentData:messages } = useGetMessagesQuery(selectedUser?._id, {
     skip: !selectedUser?._id,
   });
@@ -30,7 +32,7 @@ const Home = () => {
   return (
     <div className=" flex bg-gray-100">
       {/* SIDEBAR */}
-      <aside className="hidden md:flex flex-col w-72 bg-white border-r">
+      <aside className="hidden md:flex gap-3 flex-col w-72 bg-white border-r">
         {/* Search */}
         <div className="p-3 border-b">
           <input
@@ -41,9 +43,9 @@ const Home = () => {
         </div>
 
         {/* User List */}
-        <div className="flex-1 overflow-y-auto">
-         { currentData?.users?.map((user) => (
-          <Sidebar key={user._id} user={user} />
+        <div className="flex-1 space-y-2 h-full overflow-y-auto">
+          {currentData?.users?.map((user) => (
+            <Sidebar key={user._id} user={user} />
           ))}
         </div>
 
@@ -58,34 +60,41 @@ const Home = () => {
       </aside>
 
       {/* CHAT AREA */}
-      <main className="flex-1 flex flex-col h-screen">
-        {/* Chat Header */}
-        <header className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">
-              {activeUser?.fullName?.[0]?.toUpperCase()}
+      {selectedUser ? (
+        <main className="flex-1 flex flex-col h-screen">
+          {/* Chat Header */}
+          <header className="flex items-center justify-between px-4 py-3 bg-white border-b shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">
+                {activeUser?.fullName?.[0]?.toUpperCase()}
+              </div>
+              <div>
+                <p className="font-semibold">
+                  {activeUser?.fullName || "Select a user"}
+                </p>
+                <p className="text-sm text-green-500">online</p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold">
-                {activeUser?.fullName || "Select a user"}
-              </p>
-              <p className="text-sm text-green-500">online</p>
-            </div>
+          </header>
+          <Messages messages={messages} users={currentData} />
+          {/* Message Input */}
+          <div className="p-3 bg-white border-t flex gap-2 shrink-0">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              className="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-400"
+            />
+            <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+              Send
+            </button>
           </div>
-        </header>
-        <Messages messages={messages} users={currentData} />
-        {/* Message Input */}
-        <div className="p-3 bg-white border-t flex gap-2 shrink-0">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            className="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-green-400"
-          />
-          <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-            Send
-          </button>
+        </main>
+      ) : (
+        <div className="flex justify-center items-center flex-1">
+          <h3>{activeUser?.fullName}</h3>
+          <p>Let's Conversation</p>
         </div>
-      </main>
+      )}
     </div>
   );
 };
